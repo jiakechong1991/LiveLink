@@ -104,6 +104,7 @@ SMayaLiveLinkSourceFactory::~SMayaLiveLinkSourceFactory()
 	}
 }
 
+// 这应该是 mayalivelink插件的 显示模块。负责显示数据源的信息和状态
 void SMayaLiveLinkSourceFactory::Construct(const FArguments& Args)
 {
 	OnSourceSelected = Args._OnSourceSelected;

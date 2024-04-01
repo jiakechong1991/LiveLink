@@ -37,6 +37,7 @@ FMayaLiveLinkPresenceDetector::FMayaLiveLinkPresenceDetector()
 {
 	PingRequestFrequency = GetDefault<ULiveLinkSettings>()->GetMessageBusPingRequestFrequency();
 
+	//这里注册了pong消息的 钩子函数，等待三方app的pong消息
 	MessageEndpoint = FMessageEndpoint::Builder(TEXT("MayaLiveLinkPresenceDetector"))
 							.Handling<FMayaLiveLinkPongMessage>(this, &FMayaLiveLinkPresenceDetector::HandlePongMessage);
 
@@ -73,6 +74,7 @@ FMayaLiveLinkPresenceDetector::~FMayaLiveLinkPresenceDetector()
 
 uint32 FMayaLiveLinkPresenceDetector::Run()
 {
+	// 这里应该是周期性的发送ping消息
 	while (bIsRunning)
 	{
 		{
@@ -120,7 +122,7 @@ void FMayaLiveLinkPresenceDetector::RemovePresenceRequest()
 void FMayaLiveLinkPresenceDetector::HandlePongMessage(const FMayaLiveLinkPongMessage& Message, const TSharedRef<IMessageContext, ESPMode::ThreadSafe>& Context)
 {
 	FScopeLock Lock(&CriticalSection);
-
+	// 收到pong消息后，再发送一条消息，然后通信就建立了。
 	if (Message.PollRequest == PingId)
 	{
 		PollResults.Emplace(MakeShared<FProviderPollResult, ESPMode::ThreadSafe>(Context->GetSender(),
