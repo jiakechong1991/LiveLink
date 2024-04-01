@@ -78,7 +78,11 @@ void UnrealInitializer::InitializeUnreal()
 
 	// Load UdpMessaging module needed by message bus.
 	FModuleManager::Get().LoadModule(TEXT("UdpMessaging"));
-
+	
+	IPluginManager::Get().LoadModulesForEnabledPlugins(ELoadingPhase::PreDefault);
+	IPluginManager::Get().LoadModulesForEnabledPlugins(ELoadingPhase::Default);
+	IPluginManager::Get().LoadModulesForEnabledPlugins(ELoadingPhase::PostDefault);
+	
 	InitializedOnce = true;
 }
 
