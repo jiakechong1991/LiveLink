@@ -29,6 +29,7 @@
 
 FMessageBusLiveLinkProducer::FMessageBusLiveLinkProducer(const FString& ProviderName)
 {
+	// 这是大佬 【真正创建】livelink 客户端连接的位置
 	FMessageEndpointBuilder EndpointBuilder(*ProviderName);
 	EndpointBuilder
 		.Handling<FLiveLinkConnectMessage>(this, &FMessageBusLiveLinkProducer::HandleConnectMessage)
@@ -43,7 +44,8 @@ FMessageBusLiveLinkProducer::FMessageBusLiveLinkProducer(const FString& Provider
 	TSharedPtr<ILiveLinkProvider> Provider = ILiveLinkProvider::CreateLiveLinkProvider<FMayaLiveLinkProvider>(ProviderName, MoveTemp(EndpointBuilder));
 	LiveLinkProvider = StaticCastSharedPtr<FMayaLiveLinkProvider>(Provider);
 	LiveLinkProvider->Subscribe<FMayaLiveLinkPingMessage>();
-
+	// 至此，provider创建完成
+	
 	Interceptor = MakeShared<FMayaLiveLinkMessageInterceptor, ESPMode::ThreadSafe>();
 	TSharedPtr<IMessageBus, ESPMode::ThreadSafe> Bus = IMessagingModule::Get().GetDefaultBus();
 	Bus->Intercept(Interceptor->AsShared(), FTopLevelAssetPath(FLiveLinkPingMessage::StaticStruct()->GetPathName()));

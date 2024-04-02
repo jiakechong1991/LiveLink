@@ -43,6 +43,7 @@ class IMStreamedEntity;
 				It provides an interface for Subjects to be streamed to Unreal Live Link provider.
 				It also keeps track of subjects that are being streamed to UE.
 */
+// 该类把livelink的操作都封装了起来，之后maya只需要操作这个类就行了。
 class MayaLiveLinkStreamManager
 {
 public:

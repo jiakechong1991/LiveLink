@@ -164,6 +164,6 @@ private:
 								const TSharedRef<class IMessageContext, ESPMode::ThreadSafe>& Context);
 
 private:
-	TSharedPtr<class FMayaLiveLinkProvider> LiveLinkProvider;
+	TSharedPtr<class FMayaLiveLinkProvider> LiveLinkProvider;  // 创建成功的provider就放在这里。
 	TSharedPtr<class FMayaLiveLinkMessageInterceptor, ESPMode::ThreadSafe> Interceptor;
 };

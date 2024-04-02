@@ -75,7 +75,7 @@ void UnrealInitializer::InitializeUnreal()
 
 	// Tell the module manager is may now process newly-loaded UObjects when new C++ modules are loaded
 	FModuleManager::Get().StartProcessingNewlyLoadedObjects();
-
+    // 这里加载了UDP消息模块
 	// Load UdpMessaging module needed by message bus.
 	FModuleManager::Get().LoadModule(TEXT("UdpMessaging"));
 	
@@ -108,9 +108,11 @@ void UnrealInitializer::AddMayaOutput(PrintToMayaCb Callback)
 */
 void UnrealInitializer::StartLiveLink(void (*OnChangedCbFp)(), void(*OnTimeChangedCbFp)(const struct FQualifiedFrameTime&))
 {
+	// 创建了 LiveLink的provider
 	auto LiveLinkProvider = FUnrealStreamManager::TheOne().GetLiveLinkProvider();
 	if (LiveLinkProvider.IsValid())
 	{
+		// 请看下 这个消息是否打印出来
 		FPlatformMisc::LowLevelOutputDebugString(TEXT("Live Link Provider already started!\n"));
 	}
 	else
@@ -120,9 +122,11 @@ void UnrealInitializer::StartLiveLink(void (*OnChangedCbFp)(), void(*OnTimeChang
 		LiveLinkProvider = FUnrealStreamManager::TheOne().GetLiveLinkProvider();
 	}
 
+	// 注册了连接状态的处理函数
 	ConnectionStatusChangedHandle = LiveLinkProvider->
 		RegisterConnStatusChangedHandle(FMayaLiveLinkProviderConnectionStatusChanged::FDelegate::CreateStatic(OnChangedCbFp));
 
+	// 注册 时间变换处理函数
 	TimeChangedReceivedHandle = LiveLinkProvider->
 		RegisterTimeChangedReceived(FMayaLiveLinkProviderTimeChangedReceived::FDelegate::CreateStatic(OnTimeChangedCbFp));
 

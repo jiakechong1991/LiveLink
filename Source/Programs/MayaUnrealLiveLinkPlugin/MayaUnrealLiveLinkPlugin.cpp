@@ -412,12 +412,14 @@ public:
 
 const MString LiveLinkAddSelectionCommandName("LiveLinkAddSelection");
 
+// MPxCommand这是maya创建爱你自定义命令的基类。
 class LiveLinkAddSelectionCommand : public MPxCommand
 {
 public:
 	static void		cleanup() {}
 	static void*	creator() { return new LiveLinkAddSelectionCommand(); }
 
+	//这是命令执行的具体动作
 	MStatus			doIt(const MArgList& args) override
 	{
 		MSelectionList SelectedItems;
@@ -438,7 +440,7 @@ public:
 
 			MItDag DagIterator;
 			DagIterator.reset(SelectedRoot);
-
+			//将选择的item，逐个的发送到livelink中
 			AlreadyInTheList |= MayaLiveLinkStreamManager::TheOne().AddSubject(DagIterator);
 		}
 		appendToResult(AlreadyInTheList);
@@ -2437,7 +2439,7 @@ FDetectIdleEvent::~FDetectIdleEvent()
 uint32 FDetectIdleEvent::Run()
 {
 	using namespace std::chrono_literals;
-
+	// 检测数据的发送情况，如果空闲，就暂停一下，以避免过度占用CPU资源
 	// Pause the thread until we're sure that no other playback range change occurs
 	while (std::chrono::duration<double>(std::chrono::steady_clock::now() - PlaybackRangeChangedId.load()).count() < 2.0 &&
 		   bRunThread)
@@ -2546,6 +2548,7 @@ void AllDagChangesCallback(MDagMessage::DagMessage MsgType,
 *
 * @return	MS::kSuccess if everything went OK and the plugin is ready to use
 */
+// 这是插件的核心函数
 MStatus initializePlugin(MObject MayaPluginObject)
 {
 	PluginVersion = TCHAR_TO_ANSI(*FMayaLiveLinkInterfaceModule::GetPluginVersion());
@@ -2585,6 +2588,7 @@ MStatus initializePlugin(MObject MayaPluginObject)
 		}
 	}
 
+	// 开始初始化 livelink的链接
 	if (UnrealInitializer::TheOne().HasInitializedOnce())
 	{
 		MGlobal::displayWarning("Unreal Live Link plug-in is unable to reload after unloading in same session. Please restart Maya to reload the plug-in again.");
@@ -2592,15 +2596,19 @@ MStatus initializePlugin(MObject MayaPluginObject)
 		return MayaStatusResult;
 	}
 
+	//初始化livelink的UDP模块
 	UnrealInitializer::TheOne().InitializeUnreal();
 	UnrealInitializer::TheOne().AddMayaOutput(PrintInfoToMaya);
+	// 创建 livelink 连接
 	UnrealInitializer::TheOne().StartLiveLink(OnConnectionStatusChanged, OnTimeChangedReceived);
 
 	// We do not tick the core engine but we need to tick the ticker to make sure the message
 	// bus endpoint in LiveLinkProvider is up to date.
 	FTickerTick(1.0f);
+	// 这个类，以后就是 以后发送maya数据的关键桥梁，他封装了livelink的各种操作
 	MayaLiveLinkStreamManager::TheOne().Reset();
 
+	//注册一堆回调函数，用来响应maya的操作
 	MCallbackId MayaExitingCallbackId = MSceneMessage::addCallback(MSceneMessage::kMayaExiting, (MMessage::MBasicFunction)OnMayaExit);
 	myCallbackIds.append(MayaExitingCallbackId);
 
@@ -2633,6 +2641,7 @@ MStatus initializePlugin(MObject MayaPluginObject)
 	MCallbackId	CallbackId = MDagMessage::addAllDagChangesCallback(AllDagChangesCallback);
 	myCallbackIds.append(CallbackId);
 
+	//注册该插件的 一堆命令
 	MayaPlugin.registerCommand(LiveLinkSubjectNamesCommandName, LiveLinkSubjectNamesCommand::creator);
 	MayaPlugin.registerCommand(LiveLinkSubjectPathsCommandName, LiveLinkSubjectPathsCommand::creator);
 	MayaPlugin.registerCommand(LiveLinkSubjectRolesCommandName, LiveLinkSubjectRolesCommand::creator);

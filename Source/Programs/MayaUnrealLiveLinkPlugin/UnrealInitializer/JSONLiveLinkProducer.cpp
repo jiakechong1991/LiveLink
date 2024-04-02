@@ -89,7 +89,7 @@ FJSONLiveLinkProducer::~FJSONLiveLinkProducer()
 bool FJSONLiveLinkProducer::Connect(const FIPv4Endpoint& InEndpoint)
 {
 	CloseConnection();
-
+	// 这是一种不使用 messagebus的通信方式，直接使用socket来操作UDP接口 进行模拟
 	Socket = socket(AF_INET, SOCK_DGRAM, 0);
 	FString Error("Resolve error: ");
 

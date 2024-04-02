@@ -145,6 +145,7 @@ TSharedPtr<ILiveLinkProducer> FUnrealStreamManager::GetLiveLinkProvider()
 
 \return	True when live link provider was set successfully.
 */
+// 创建livelink的provider连接实例
 bool	FUnrealStreamManager::SetLiveLinkProvider(LiveLinkSource Producer)
 {
 	if (LiveLinkSource::MessageBus == Producer)
